@@ -22,6 +22,6 @@ public class City {
     private Long id;
 
     private String name;
-    private double longitude;
-    private double latitude;
+    private float longitude;
+    private float latitude;
 }
