@@ -2,6 +2,7 @@ package com.minair.domain;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,4 +25,11 @@ public class City {
     private String name;
     private float longitude;
     private float latitude;
+
+    @Builder
+    public City(String name, float longitude, float latitude) {
+        this.name = name;
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
 }
