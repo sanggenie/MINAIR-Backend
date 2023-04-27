@@ -1,9 +1,12 @@
 package com.minair.util.converter;
 
+import com.minair.common.exception.GlobalException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.NoSuchElementException;
+
+import static com.minair.common.exception.CustomExceptionStatus.INVALID_WEATHER_CODE;
 
 @Getter
 @AllArgsConstructor
@@ -22,6 +25,6 @@ public class WeatherCodeConverter {
                 return weatherCode.getWeatherCondition();
             }
         }
-        throw new IllegalArgumentException("존재하지 않는 날씨입니다.");
+        throw new GlobalException(INVALID_WEATHER_CODE);
     }
 }

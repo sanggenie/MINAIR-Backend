@@ -1,5 +1,6 @@
 package com.minair.service;
 
+import com.minair.common.exception.GlobalException;
 import com.minair.domain.City;
 import com.minair.domain.Weather;
 import com.minair.dto.WeatherInfo;
@@ -24,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.minair.common.exception.CustomExceptionStatus.NOT_EXIST_CITY;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class WeatherService {
 
     public WeatherResponseDto showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
         City city = cityRepository.findById(cityId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 city입니다."));
+                .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
 
         List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(city.getId(), startDate, endDate);
         long dayDiff = ChronoUnit.DAYS.between(startDate, endDate) + 1;
