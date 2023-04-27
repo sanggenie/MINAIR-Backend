@@ -34,6 +34,12 @@ public class WeatherService {
     private final WeatherRepository weatherRepository;
     private final WeatherQueryRepository weatherQueryRepository;
 
+    @Transactional
+    public void saveAllLastWeathers(WeatherInfo weatherInfo, City city) {
+        List<Weather> weathers = transformInfoToEntity(weatherInfo, city);
+        weatherRepository.saveAll(weathers);
+    }
+
     public WeatherResponseDto showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 city입니다."));
@@ -44,40 +50,12 @@ public class WeatherService {
         String lastestWeather = calculateAverageWeather(weathers, dayDiff);
 
         return WeatherResponseDto.builder()
+                .cityName(city.getName())
                 .startDate(startDate)
                 .endDate(endDate)
                 .averageTemperature(averageTemperature)
                 .lastestWeather(lastestWeather)
                 .build();
-    }
-
-    private double calculateAverageTemperature(List<Weather> weathers) {
-        return Math.round(weathers.stream()
-                .mapToDouble(Weather::getTemperature)
-                .average().orElse(0.0) * 100.0) / 100.0;
-    }
-
-    private String calculateAverageWeather(List<Weather> weathers, long dayDiff) {
-        List<Weather> slicedWeathers = weathers.subList(0, (int) dayDiff);
-        List<Integer> weatherCodes = slicedWeathers.stream()
-                .map(Weather::getWeatherCode)
-                .map(WeatherCodeConverter::convertWeatherCode)
-                .collect(Collectors.toList());
-
-        Integer key = weatherCodes.stream()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .orElseThrow(NoSuchElementException::new)
-                .getKey();
-
-        return WeatherCodeConverter.getWeatherCondition(key);
-    }
-
-    @Transactional
-    public void saveAllLastWeathers(WeatherInfo weatherInfo, City city) {
-        List<Weather> weathers = transformInfoToEntity(weatherInfo, city);
-        weatherRepository.saveAll(weathers);
     }
 
     private List<Weather> transformInfoToEntity(WeatherInfo weatherInfo, City city) {
@@ -104,5 +82,28 @@ public class WeatherService {
                     .build());
         }
         return weathers;
+    }
+
+    private double calculateAverageTemperature(List<Weather> weathers) {
+        return Math.round(weathers.stream()
+                .mapToDouble(Weather::getTemperature)
+                .average().orElse(0.0) * 100) / 100.0;
+    }
+
+    private String calculateAverageWeather(List<Weather> weathers, long dayDiff) {
+        List<Weather> slicedWeathers = weathers.subList(0, (int) dayDiff);
+        List<Integer> weatherCodes = slicedWeathers.stream()
+                .map(Weather::getWeatherCode)
+                .map(WeatherCodeConverter::convertWeatherCode)
+                .collect(Collectors.toList());
+
+        Integer key = weatherCodes.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(NoSuchElementException::new)
+                .getKey();
+
+        return WeatherCodeConverter.getWeatherCondition(key);
     }
 }
