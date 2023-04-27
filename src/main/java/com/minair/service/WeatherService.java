@@ -3,6 +3,8 @@ package com.minair.service;
 import com.minair.domain.City;
 import com.minair.domain.Weather;
 import com.minair.dto.WeatherInfo;
+import com.minair.repository.CityRepository;
+import com.minair.repository.WeatherQueryRepository;
 import com.minair.repository.WeatherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +25,24 @@ import java.util.stream.Collectors;
 @Slf4j
 public class WeatherService {
 
+    private final CityRepository cityRepository;
     private final WeatherRepository weatherRepository;
+    private final WeatherQueryRepository weatherQueryRepository;
+
+    public void showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 city입니다."));
+
+        List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(city.getId(), startDate, endDate);
+        long dayDiff = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        double averageTemperature = calculateAverageTemperature(weathers);
+    }
+
+    private double calculateAverageTemperature(List<Weather> weathers) {
+        return Math.round(weathers.stream()
+                .mapToDouble(Weather::getTemperature)
+                .average().orElse(0.0) * 100.0) / 100.0;
+    }
 
     @Transactional
     public void saveAllLastWeathers(WeatherInfo weatherInfo, City city) {
