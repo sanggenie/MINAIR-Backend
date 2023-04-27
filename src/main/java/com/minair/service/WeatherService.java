@@ -24,6 +24,12 @@ public class WeatherService {
 
     private final WeatherRepository weatherRepository;
 
+    @Transactional
+    public void saveAllLastWeathers(WeatherInfo weatherInfo, City city) {
+        List<Weather> weathers = transformInfoToEntity(weatherInfo, city);
+        weatherRepository.saveAll(weathers);
+    }
+
     private List<Weather> transformInfoToEntity(WeatherInfo weatherInfo, City city) {
         ConcurrentHashMap<String, Object> daily = weatherInfo.getDaily();
         List<String> dailyTimes = (List<String>) daily.get("time");
