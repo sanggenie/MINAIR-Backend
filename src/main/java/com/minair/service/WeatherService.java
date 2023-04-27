@@ -3,9 +3,11 @@ package com.minair.service;
 import com.minair.domain.City;
 import com.minair.domain.Weather;
 import com.minair.dto.WeatherInfo;
+import com.minair.dto.WeatherResponseDto;
 import com.minair.repository.CityRepository;
 import com.minair.repository.WeatherQueryRepository;
 import com.minair.repository.WeatherRepository;
+import com.minair.util.converter.WeatherCodeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,19 +34,44 @@ public class WeatherService {
     private final WeatherRepository weatherRepository;
     private final WeatherQueryRepository weatherQueryRepository;
 
-    public void showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
+    public WeatherResponseDto showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 city입니다."));
 
         List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(city.getId(), startDate, endDate);
         long dayDiff = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         double averageTemperature = calculateAverageTemperature(weathers);
+        String lastestWeather = calculateAverageWeather(weathers, dayDiff);
+
+        return WeatherResponseDto.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .averageTemperature(averageTemperature)
+                .lastestWeather(lastestWeather)
+                .build();
     }
 
     private double calculateAverageTemperature(List<Weather> weathers) {
         return Math.round(weathers.stream()
                 .mapToDouble(Weather::getTemperature)
                 .average().orElse(0.0) * 100.0) / 100.0;
+    }
+
+    private String calculateAverageWeather(List<Weather> weathers, long dayDiff) {
+        List<Weather> slicedWeathers = weathers.subList(0, (int) dayDiff);
+        List<Integer> weatherCodes = slicedWeathers.stream()
+                .map(Weather::getWeatherCode)
+                .map(WeatherCodeConverter::convertWeatherCode)
+                .collect(Collectors.toList());
+
+        Integer key = weatherCodes.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(NoSuchElementException::new)
+                .getKey();
+
+        return WeatherCodeConverter.getWeatherCondition(key);
     }
 
     @Transactional
