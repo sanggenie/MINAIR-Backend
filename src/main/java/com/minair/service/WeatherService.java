@@ -50,7 +50,7 @@ public class WeatherService {
         List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(city.getId(), startDate, endDate);
         long dayDiff = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         double averageTemperature = calculateAverageTemperature(weathers);
-        String lastestWeather = calculateAverageWeather(weathers, dayDiff);
+        String lastestWeather = calculateLastestWeather(weathers, dayDiff);
 
         return WeatherResponseDto.builder()
                 .cityName(city.getName())
@@ -93,7 +93,7 @@ public class WeatherService {
                 .average().orElse(0.0) * 100) / 100.0;
     }
 
-    private String calculateAverageWeather(List<Weather> weathers, long dayDiff) {
+    private String calculateLastestWeather(List<Weather> weathers, long dayDiff) {
         List<Weather> slicedWeathers = weathers.subList(0, (int) dayDiff);
         List<Integer> weatherCodes = slicedWeathers.stream()
                 .map(Weather::getWeatherCode)
