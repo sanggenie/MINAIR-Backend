@@ -30,6 +30,7 @@ public class WeatherQueryRepository {
                                 .or(betweenDate(from.minusYears(3), to.minusYears(3)))
                         )
                 )
+                .orderBy(weather.date.desc())
                 .fetch();
     }
 
