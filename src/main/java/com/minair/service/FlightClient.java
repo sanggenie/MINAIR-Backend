@@ -31,32 +31,34 @@ public class FlightClient {
     @Value("${api.client.flight.key}")
     private String apikey;
 
-    public void getFlightInfo(String flyFrom, String flyTo,
-                                LocalDate startDate, LocalDate endDate, int people) {
+    public FlightInfo getFlightInfo(String flyFrom, String flyTo,
+                                LocalDate startDate, LocalDate endDate, int day,int people) {
         City from = cityRepository.findByName(flyFrom)
                 .orElseThrow(() -> new GlobalException(CustomExceptionStatus.NOT_EXIST_CITY));
 
         City to = cityRepository.findByName(flyTo)
                 .orElseThrow(() -> new GlobalException(CustomExceptionStatus.NOT_EXIST_CITY));
 
-        URI uri = transformUri(from, to, startDate, endDate, people);
-        FlightInfo flightInfo = getFlightInfo(uri);
+        URI uri = transformUri(from, to, startDate, endDate, day, people);
+        return requestFlightInfo(uri);
     }
 
-    private URI transformUri(City from, City to, LocalDate startDate, LocalDate endDate, int people) {
+    private URI transformUri(City from, City to, LocalDate startDate, LocalDate endDate, int day, int people) {
         return UriComponentsBuilder
                 .fromUriString(flightUri)
                 .queryParam("fly_from", from.getAirportCode())
                 .queryParam("fly_to", to.getAirportCode())
-                .queryParam("dateFrom",startDate)
-                .queryParam("dateTo", endDate)
+                .queryParam("date_from",startDate)
+                .queryParam("date_to", endDate)
+                .queryParam("nights_in_dst_from", day-1)
+                .queryParam("nights_in_dst_to", day-1)
                 .queryParam("adults", people)
                 .queryParam("curr", "KRW")
                 .build()
                 .toUri();
     }
 
-    private FlightInfo getFlightInfo(URI uri) {
+    private FlightInfo requestFlightInfo(URI uri) {
         return webClient
                 .get()
                 .uri(uri)
