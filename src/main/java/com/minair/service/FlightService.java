@@ -46,6 +46,7 @@ public class FlightService {
 
             flightDtos.add(
                     FlightResponseDto.builder()
+                            .countryName(city.getCountry())
                             .cityName(city.getName())
                             .startDate(startDate)
                             .endDate(endDate)
