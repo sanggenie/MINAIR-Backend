@@ -67,19 +67,19 @@ public enum Location {
     ZAGREB("자그레브", "ZAG", 15.96, 45.84),
 
     //America
-    LOS_ANGELAS("로스 앤젤레스", "PHX", 34.052, -118.244),
+    LOSANGELAS("로스 앤젤레스", "PHX", -118.244, 34.052),
     HONOLULU("호놀룰루", "HNL", -157.805, 21.314),
-    NEW_YORK("뉴욕", "JFK", -73.939, 40.664),
-    VANCOUVER("밴쿠버", "YVR", 49.283, -123.121),
-    SAN_FRANCISCO("샌프란시스코", "SFO", -122.42, 37.775),
-    TORONTO("토론토", "YYZ", 43.653, -79.383),
+    NEWYORK("뉴욕", "JFK", -73.939, 40.664),
+    VANCOUVER("밴쿠버", "YVR", -123.121,49.283),
+    SANFRANCISCO("샌프란시스코", "SFO", -122.42, 37.775),
+    TORONTO("토론토", "YYZ", -79.383,43.653),
 
     //Great Western
-    GUAM("괌", "GUM", 13.444, 144.794),
-    SYDNEY("시드니", "SYD", -33.867, 151.207),
-    MELBOURN("멜버른", "MEL", -37.814, 144.963),
-    BRISBORN("브리즈번", "BNE", 153.03, -27.47),
-    SAIPAN("사이판", "SPN", 15.178, 145.751),
+    GUAM("괌", "GUM", 144.794, 13.444),
+    SYDNEY("시드니", "SYD", 151.207,-33.867),
+    MELBOURNE("멜버른", "MEL", 144.963,-37.814),
+    BRISBANE("브리즈번", "BNE", 153.03, -27.47),
+    SAIPAN("사이판", "SPN",145.751,15.178),
     AUCHLAND("오클란드", "AKL", 174.792, -37.01),
     ;
 
