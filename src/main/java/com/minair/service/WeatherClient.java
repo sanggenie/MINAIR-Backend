@@ -26,7 +26,7 @@ public class WeatherClient {
 
     public WeatherInfo getWeatherInfo(City city, LocalDate startDate, LocalDate endDate) {
         URI uri = transformUri(city, startDate, endDate);
-        return getWeatherInfo(uri);
+        return requestWeatherInfo(uri);
     }
 
     private URI transformUri(City city, LocalDate startDate, LocalDate endDate) {
@@ -42,7 +42,7 @@ public class WeatherClient {
                 .toUri();
     }
 
-    private WeatherInfo getWeatherInfo(URI uri) {
+    private WeatherInfo requestWeatherInfo(URI uri) {
         return webClient
                 .get()
                 .uri(uri)
