@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Location {
 
+    // KOREA
+    INCHEON("인천", "ICN", 126.705, 37.456),
+
     // japan
     OSAKA("오사카", "KIX", 135.50, 34.69),
     TOKYO("도쿄", "NRT", 139.69, 35.69),
@@ -62,6 +65,22 @@ public enum Location {
     MILAN("밀라노", "MXP", 9.189, 45.46),
     WARSAW("바르샤바", "WAW", 21.07, 52.23),
     ZAGREB("자그레브", "ZAG", 15.96, 45.84),
+
+    //America
+    LOS_ANGELAS("로스 앤젤레스", "PHX", 34.052, -118.244),
+    HONOLULU("호놀룰루", "HNL", -157.805, 21.314),
+    NEW_YORK("뉴욕", "JFK", -73.939, 40.664),
+    VANCOUVER("밴쿠버", "YVR", 49.283, -123.121),
+    SAN_FRANCISCO("샌프란시스코", "SFO", -122.42, 37.775),
+    TORONTO("토론토", "YYZ", 43.653, -79.383),
+
+    //Great Western
+    GUAM("괌", "GUM", 13.444, 144.794),
+    SYDNEY("시드니", "SYD", -33.867, 151.207),
+    MELBOURN("멜버른", "MEL", -37.814, 144.963),
+    BRISBORN("브리즈번", "BNE", 153.03, -27.47),
+    SAIPAN("사이판", "SPN", 15.178, 145.751),
+    AUCHLAND("오클란드", "AKL", 174.792, -37.01),
     ;
 
     private final String cityName;
