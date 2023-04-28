@@ -53,9 +53,6 @@ public class WeatherService {
         String lastestWeather = calculateLastestWeather(weathers, dayDiff);
 
         return WeatherResponseDto.builder()
-                .cityName(city.getName())
-                .startDate(startDate)
-                .endDate(endDate)
                 .averageTemperature(averageTemperature)
                 .lastestWeather(lastestWeather)
                 .build();

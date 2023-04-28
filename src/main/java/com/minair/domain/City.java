@@ -22,13 +22,15 @@ public class City {
     @Column(name = "city_id")
     private Long id;
 
+    private String country;
     private String name;
     private String airportCode;
     private double longitude;
     private double latitude;
 
     @Builder
-    public City(String name, String airportCode, double longitude, double latitude) {
+    public City(String country, String name, String airportCode, double longitude, double latitude) {
+        this.country = country;
         this.name = name;
         this.airportCode = airportCode;
         this.longitude = longitude;

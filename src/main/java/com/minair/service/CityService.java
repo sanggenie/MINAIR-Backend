@@ -1,6 +1,7 @@
 package com.minair.service;
 
 import com.minair.domain.City;
+import com.minair.dto.CityResponseDto;
 import com.minair.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,6 +22,14 @@ public class CityService {
     @Transactional
     public void save(City city) {
         cityRepository.save(city);
+    }
+
+    public List<CityResponseDto> findAllCityDetails() {
+        List<CityResponseDto> responseDtos = cityRepository.findAll()
+                .stream()
+                .map(CityResponseDto::of)
+                .collect(Collectors.toList());
+        return responseDtos;
     }
 
     public List<City> findAll() {
