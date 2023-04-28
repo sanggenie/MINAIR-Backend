@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Builder
 public class FlightResponseDto {
 
+    private String countryName;
     private String cityName;
     private LocalDate startDate;
     private LocalDate endDate;
