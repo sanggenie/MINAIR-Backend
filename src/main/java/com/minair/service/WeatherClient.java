@@ -4,6 +4,7 @@ import com.minair.domain.City;
 import com.minair.dto.WeatherInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,7 +21,8 @@ public class WeatherClient {
 
     private final WebClient webClient;
 
-    private static final String WEATHER_URI = "https://archive-api.open-meteo.com/v1/archive";
+    @Value("${api.client.weather.uri}")
+    private String weatherUri;
 
     public WeatherInfo getWeatherInfo(City city, LocalDate startDate, LocalDate endDate) {
         URI uri = transformUri(city, startDate, endDate);
@@ -29,7 +31,7 @@ public class WeatherClient {
 
     private URI transformUri(City city, LocalDate startDate, LocalDate endDate) {
         return UriComponentsBuilder
-                .fromUriString(WEATHER_URI)
+                .fromUriString(weatherUri)
                 .queryParam("daily","temperature_2m_mean,weathercode")
                 .queryParam("timezone", "GMT")
                 .queryParam("longitude",city.getLongitude())
