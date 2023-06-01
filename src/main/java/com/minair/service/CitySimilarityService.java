@@ -85,11 +85,17 @@ public class CitySimilarityService {
         int count = 2;
         double totalWeight = 0.0;
 
+        for (CitySimilarity cs : cities) {
+            double weight = cs.getWeight();
+            calculatedWeights.add(weight);
+            totalWeight += weight;
+        }
+
         for (int i = 0; i < count; i++) {
             double randomValue = random.nextDouble();
             double cumulativeWeight = 0.0;
 
-            normalizeWeights(cities, calculatedWeights, totalWeight);
+            normalizeWeights(calculatedWeights);
 
             for (int j = 0; j < calculatedWeights.size(); j++) {
                 cumulativeWeight += calculatedWeights.get(j);
@@ -103,13 +109,11 @@ public class CitySimilarityService {
 
         return result;
     }
-    private void normalizeWeights(List<CitySimilarity> cities, List<Double> calculatedWeights, double totalWeight){
-        for (CitySimilarity cs : cities) {
-            double weight = cs.getWeight();
-            calculatedWeights.add(weight);
-            totalWeight += weight;
-        }
-
+    private void normalizeWeights(List<Double> calculatedWeights){
+        double totalWeight = 0;
+        for(Double cw: calculatedWeights)
+            totalWeight += cw;
+        
         for (int i = 0; i < calculatedWeights.size(); i++) {
             double normalizedWeight = calculatedWeights.get(i) / totalWeight;
             calculatedWeights.set(i, normalizedWeight);
