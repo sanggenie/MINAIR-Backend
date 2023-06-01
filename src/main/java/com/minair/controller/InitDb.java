@@ -53,4 +53,9 @@ public class InitDb {
                     weatherService.saveAllLastWeathers(weatherInfo, city);
                 });
     }
+
+    @PostMapping("/init-similarity")
+    public void initSimilarity() {
+        citySimilarityService.initAllSimilarity();
+    }
 }
