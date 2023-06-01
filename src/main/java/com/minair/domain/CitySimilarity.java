@@ -34,7 +34,6 @@ public class CitySimilarity {
     private City targetCity;
 
     private int weight;
-
     @Builder
     public CitySimilarity(City city, City targetCity, int weight) {
         this.city = city;
