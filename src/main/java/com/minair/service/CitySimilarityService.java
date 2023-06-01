@@ -12,8 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.minair.common.exception.CustomExceptionStatus.NOT_EXIST_CITY;
 import static com.minair.common.exception.CustomExceptionStatus.SERVER_ERROR;
@@ -45,40 +48,16 @@ public class CitySimilarityService {
         });
     }
 
-    public List<CitySimilarity> calculateWeights(Long cityid) {
-        List<CitySimilarity> cities = citySimilarityRepository.findAllByCityId(cityid);
+    public List<City> getSimilarCities(Long cityId) {
+        List<CitySimilarity> cities = citySimilarityRepository.findAllByCityId(cityId);
 
-        List<Double> calculatedWeights = new ArrayList<>();
-        List<CitySimilarity> result = new ArrayList<>();
-        Random random = new Random();
+        Set<CitySimilarity> result = calculateWeightedRandom(cities);
 
-        int count = 5;
-        double totalWeight = 0.0;
+        List<City> similarCities = result.stream()
+                .map(CitySimilarity::getTargetCity)
+                .collect(Collectors.toList());
 
-        for (CitySimilarity cs : cities) {
-            double weight = cs.getWeight();
-            calculatedWeights.add(weight);
-            totalWeight += weight;
-        }
-
-        for (int i = 0; i < calculatedWeights.size(); i++) {
-            double normalizedWeight = calculatedWeights.get(i) / totalWeight;
-            calculatedWeights.set(i, normalizedWeight);
-        }
-
-        for (int i = 0; i < count; i++) {
-            double randomValue = random.nextDouble();
-            double cumulativeWeight = 0.0;
-
-            for (int j = 0; j < calculatedWeights.size(); j++) {
-                cumulativeWeight += calculatedWeights.get(j);
-                if (randomValue < cumulativeWeight) {
-                    result.add(cities.get(j));
-                    break;
-                }
-            }
-        }
-        return result;
+        return similarCities;
     }
 
     @Transactional
@@ -95,5 +74,39 @@ public class CitySimilarityService {
         citySimilarity.update();
 
         return CitySimilarityResponseDto.of(citySimilarity);
+    }
+
+    private Set<CitySimilarity> calculateWeightedRandom(List<CitySimilarity> cities) {
+        List<Double> calculatedWeights = new ArrayList<>();
+        Set<CitySimilarity> result = new HashSet<>();
+        Random random = new Random();
+
+        int count = 5;
+        double totalWeight = 0.0;
+
+        for (CitySimilarity cs : cities) {
+            double weight = cs.getWeight();
+            calculatedWeights.add(weight);
+            totalWeight += weight;
+        }
+
+        for (int i = 0; i < calculatedWeights.size(); i++) {
+            double normalizedWeight = calculatedWeights.get(i) / totalWeight;
+            calculatedWeights.set(i, normalizedWeight);
+        }
+
+        while (result.size() != count){
+            double randomValue = random.nextDouble();
+            double cumulativeWeight = 0.0;
+
+            for (int j = 0; j < calculatedWeights.size(); j++) {
+                cumulativeWeight += calculatedWeights.get(j);
+                if (randomValue < cumulativeWeight) {
+                    result.add(cities.get(j));
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
