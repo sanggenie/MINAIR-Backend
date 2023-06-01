@@ -82,7 +82,7 @@ public class CitySimilarityService {
         Set<CitySimilarity> result = new HashSet<>();
         Random random = new Random();
 
-        int count = 5;
+        int count = 2;
         double totalWeight = 0.0;
 
         for (CitySimilarity cs : cities) {
@@ -109,7 +109,7 @@ public class CitySimilarityService {
 
         return result;
     }
-    public List<Double> normalizeWeights(List<Double> calculatedWeights, double totalWeight){
+    private List<Double> normalizeWeights(List<Double> calculatedWeights, double totalWeight){
         for (int i = 0; i < calculatedWeights.size(); i++) {
             double normalizedWeight = calculatedWeights.get(i) / totalWeight;
             calculatedWeights.set(i, normalizedWeight);
