@@ -101,6 +101,7 @@ public class CitySimilarityService {
                 cumulativeWeight += calculatedWeights.get(j);
                 if (randomValue < cumulativeWeight) {
                     result.add(cities.get(j));
+                    cities.remove(j);
                     calculatedWeights.remove(j);
                     break;
                 }
@@ -113,7 +114,7 @@ public class CitySimilarityService {
         double totalWeight = 0;
         for(Double cw: calculatedWeights)
             totalWeight += cw;
-        
+
         for (int i = 0; i < calculatedWeights.size(); i++) {
             double normalizedWeight = calculatedWeights.get(i) / totalWeight;
             calculatedWeights.set(i, normalizedWeight);
