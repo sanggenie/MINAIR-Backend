@@ -2,6 +2,7 @@ package com.minair.domain;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,4 +34,10 @@ public class CitySimilarity {
     private City targetCity;
 
     private int weight;
+    @Builder
+    public CitySimilarity(City city, City targetCity, int weight) {
+        this.city = city;
+        this.targetCity = targetCity;
+        this.weight = weight;
+    }
 }
