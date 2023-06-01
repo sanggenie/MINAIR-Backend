@@ -29,6 +29,7 @@ out/
 **/src/main/generated/**
 **/src/main/resources/application.yml
 **/src/main/resources/application-api.yml
+*.txt
 
 ### NetBeans ###
 /nbproject/private/
