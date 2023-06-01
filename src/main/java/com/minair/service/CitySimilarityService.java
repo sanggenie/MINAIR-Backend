@@ -1,7 +1,9 @@
 package com.minair.service;
 
+import com.minair.common.exception.GlobalException;
 import com.minair.domain.City;
 import com.minair.domain.CitySimilarity;
+import com.minair.dto.CitySimilarityResponseDto;
 import com.minair.repository.CityRepository;
 import com.minair.repository.CitySimilarityRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static com.minair.common.exception.CustomExceptionStatus.NOT_EXIST_CITY;
+import static com.minair.common.exception.CustomExceptionStatus.SERVER_ERROR;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,21 +45,15 @@ public class CitySimilarityService {
         });
     }
 
-    public List<CitySimilarity> findByCityId(Long cityid) {
-        return citySimilarityRepository.findByCityId(cityid);
-    }
-
     public List<CitySimilarity> calculateWeights(Long cityid) {
-        List<CitySimilarity> cities = findByCityId(cityid);
+        List<CitySimilarity> cities = citySimilarityRepository.findAllByCityId(cityid);
 
         List<Double> calculatedWeights = new ArrayList<>();
         List<CitySimilarity> result = new ArrayList<>();
         Random random = new Random();
 
-        int count = 2;
-
+        int count = 5;
         double totalWeight = 0.0;
-
 
         for (CitySimilarity cs : cities) {
             double weight = cs.getWeight();
@@ -62,12 +61,10 @@ public class CitySimilarityService {
             totalWeight += weight;
         }
 
-
         for (int i = 0; i < calculatedWeights.size(); i++) {
             double normalizedWeight = calculatedWeights.get(i) / totalWeight;
             calculatedWeights.set(i, normalizedWeight);
         }
-
 
         for (int i = 0; i < count; i++) {
             double randomValue = random.nextDouble();
@@ -82,5 +79,21 @@ public class CitySimilarityService {
             }
         }
         return result;
+    }
+
+    @Transactional
+    public CitySimilarityResponseDto updateWeight(Long cityId, Long targetCityId) {
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
+
+        City targetCity = cityRepository.findById(targetCityId)
+                .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
+
+        CitySimilarity citySimilarity = citySimilarityRepository.findByCityIdAndTargetCityId(cityId, targetCityId)
+                .orElseThrow(() -> new GlobalException(SERVER_ERROR));
+
+        citySimilarity.update();
+
+        return CitySimilarityResponseDto.of(citySimilarity);
     }
 }
