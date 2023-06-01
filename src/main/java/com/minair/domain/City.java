@@ -27,13 +27,28 @@ public class City {
     private String airportCode;
     private double longitude;
     private double latitude;
+    private int cluster;
 
     @Builder
-    public City(String country, String name, String airportCode, double longitude, double latitude) {
+    public City(String country, String name, String airportCode,
+                double longitude, double latitude, int cluster) {
         this.country = country;
         this.name = name;
         this.airportCode = airportCode;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.cluster = cluster;
     }
+
+    public static City of(Location location) {
+        return City.builder()
+                .country(location.getCountry())
+                .name(location.getCityName())
+                .airportCode(location.getAirportCode())
+                .longitude(location.getLongitude())
+                .latitude(location.getLatitude())
+                .cluster(location.getCluster())
+                .build();
+    }
+
 }
