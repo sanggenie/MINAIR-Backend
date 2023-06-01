@@ -28,5 +28,9 @@ public class CitySimilarity {
     @JoinColumn(name = "city_id")
     private City city;
 
-    private int count;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_city_id")
+    private City targetCity;
+
+    private int weight;
 }
