@@ -83,12 +83,10 @@ public class CitySimilarityService {
         Random random = new Random();
 
         int count = 2;
-        double totalWeight = 0.0;
 
         for (CitySimilarity cs : cities) {
             double weight = cs.getWeight();
             calculatedWeights.add(weight);
-            totalWeight += weight;
         }
 
         for (int i = 0; i < count; i++) {
