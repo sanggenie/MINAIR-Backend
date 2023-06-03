@@ -2,8 +2,9 @@ package com.minair.service;
 
 import com.minair.common.exception.GlobalException;
 import com.minair.domain.City;
-import com.minair.dto.FlightResponseDto;
+import com.minair.dto.FlightDetailsReponseDto;
 import com.minair.dto.FlightInfo;
+import com.minair.dto.FlightResponseDto;
 import com.minair.dto.WeatherResponseDto;
 import com.minair.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +32,18 @@ public class FlightService {
     private final WeatherService weatherService;
     private final CityRepository cityRepository;
 
-    public List<FlightResponseDto> getDetailsFlight(FlightInfo flightInfo, String flyTo, int day, int size) {
-        City city = cityRepository.findByName(flyTo)
+    public FlightResponseDto getDetailsFlight(FlightInfo flightInfo, int day, int size) {
+
+        String airportCode = (String) flightInfo.getData().stream()
+                .map(data -> data.get("flyTo"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("error"))
+                .get();
+
+        City city = cityRepository.findByAirportCode(airportCode)
                 .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
 
-        List<FlightResponseDto> flightDtos = new ArrayList<>();
-
+        List<FlightDetailsReponseDto> flightDtos = new ArrayList<>();
         ArrayList<Map.Entry<LocalDate, Float>> flights = calculateCheapestFlights(flightInfo, size);
 
         for (Map.Entry<LocalDate, Float> flight : flights) {
@@ -45,16 +52,14 @@ public class FlightService {
             WeatherResponseDto weatherResponseDto = weatherService.showWeatherDetails(city.getId(), startDate, endDate);
 
             flightDtos.add(
-                    FlightResponseDto.builder()
-                            .countryName(city.getCountry())
-                            .cityName(city.getName())
+                    FlightDetailsReponseDto.builder()
                             .startDate(startDate)
                             .endDate(endDate)
                             .price(flight.getValue())
                             .weather(weatherResponseDto)
                             .build());
         }
-        return flightDtos;
+        return FlightResponseDto.of(city, flightDtos);
     }
 
     public ArrayList<Map.Entry<LocalDate, Float>> calculateCheapestFlights(FlightInfo flightInfo, int size) {
