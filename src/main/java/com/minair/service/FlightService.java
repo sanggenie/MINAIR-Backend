@@ -75,9 +75,8 @@ public class FlightService {
         ConcurrentHashMap<LocalDate, Float> flights = new ConcurrentHashMap<>();
 
         List<ConcurrentHashMap<String, Optional<Object>>> datas = flightInfo.getData();
-        int idx = 0;
+
         for (ConcurrentHashMap<String, Optional<Object>> data : datas) {
-            idx += 1;
             String localArrival = (String) data.get("local_arrival").orElse(null);
             String subString = localArrival.substring(0, 10);
             LocalDate date = LocalDate.parse(subString);
