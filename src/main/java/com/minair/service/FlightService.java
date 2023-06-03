@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.minair.common.exception.CustomExceptionStatus.NOT_EXIST_CITY;
 
@@ -31,6 +32,14 @@ public class FlightService {
 
     private final WeatherService weatherService;
     private final CityRepository cityRepository;
+
+    public List<FlightResponseDto> getDetailsFlights(List<FlightInfo> flightInfos, int day, int size) {
+        List<FlightResponseDto> responseDtos = flightInfos.stream()
+                .map(flightInfo -> getDetailsFlight(flightInfo, day, size))
+                .collect(Collectors.toList());
+
+        return responseDtos;
+    }
 
     public FlightResponseDto getDetailsFlight(FlightInfo flightInfo, int day, int size) {
 
