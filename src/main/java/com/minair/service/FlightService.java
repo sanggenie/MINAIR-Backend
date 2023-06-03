@@ -31,13 +31,13 @@ public class FlightService {
     private final WeatherService weatherService;
     private final CityRepository cityRepository;
 
-    public List<FlightResponseDto> getDetailsFlight(FlightInfo flightInfo, String flyTo, int day) {
+    public List<FlightResponseDto> getDetailsFlight(FlightInfo flightInfo, String flyTo, int day, int size) {
         City city = cityRepository.findByName(flyTo)
                 .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
 
         List<FlightResponseDto> flightDtos = new ArrayList<>();
 
-        ArrayList<Map.Entry<LocalDate, Float>> flights = calculateCheapestFlights(flightInfo);
+        ArrayList<Map.Entry<LocalDate, Float>> flights = calculateCheapestFlights(flightInfo, size);
 
         for (Map.Entry<LocalDate, Float> flight : flights) {
             LocalDate startDate = flight.getKey();
@@ -57,7 +57,7 @@ public class FlightService {
         return flightDtos;
     }
 
-    public ArrayList<Map.Entry<LocalDate, Float>> calculateCheapestFlights(FlightInfo flightInfo) {
+    public ArrayList<Map.Entry<LocalDate, Float>> calculateCheapestFlights(FlightInfo flightInfo, int size) {
         ConcurrentHashMap<LocalDate, Float> flights = new ConcurrentHashMap<>();
 
         List<ConcurrentHashMap<String, Optional<Object>>> datas = flightInfo.getData();
@@ -69,7 +69,7 @@ public class FlightService {
             LocalDate date = LocalDate.parse(subString);
             float price = Float.parseFloat(String.valueOf(data.get("price").orElse(0.0)));
             flights.putIfAbsent(date, price);
-            if (flights.size() == 10)  break;
+            if (flights.size() == size)  break;
         }
 
         ArrayList<Map.Entry<LocalDate, Float>> entries = new ArrayList<>(flights.entrySet());
