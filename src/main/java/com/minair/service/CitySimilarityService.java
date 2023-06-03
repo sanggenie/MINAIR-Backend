@@ -60,6 +60,7 @@ public class CitySimilarityService {
         return similarCities;
     }
 
+
     @Transactional
     public CitySimilarityResponseDto updateWeight(Long cityId, Long targetCityId) {
         City city = cityRepository.findById(cityId)
@@ -81,32 +82,41 @@ public class CitySimilarityService {
         Set<CitySimilarity> result = new HashSet<>();
         Random random = new Random();
 
-        int count = 5;
-        double totalWeight = 0.0;
+        int count = 2;
 
         for (CitySimilarity cs : cities) {
             double weight = cs.getWeight();
             calculatedWeights.add(weight);
-            totalWeight += weight;
         }
 
-        for (int i = 0; i < calculatedWeights.size(); i++) {
-            double normalizedWeight = calculatedWeights.get(i) / totalWeight;
-            calculatedWeights.set(i, normalizedWeight);
-        }
-
-        while (result.size() != count){
+        for (int i = 0; i < count; i++) {
             double randomValue = random.nextDouble();
             double cumulativeWeight = 0.0;
+
+            normalizeWeights(calculatedWeights);
 
             for (int j = 0; j < calculatedWeights.size(); j++) {
                 cumulativeWeight += calculatedWeights.get(j);
                 if (randomValue < cumulativeWeight) {
                     result.add(cities.get(j));
+                    cities.remove(j);
+                    calculatedWeights.remove(j);
                     break;
                 }
             }
         }
+
         return result;
     }
+    private void normalizeWeights(List<Double> calculatedWeights){
+        double totalWeight = 0;
+        for(Double cw: calculatedWeights)
+            totalWeight += cw;
+
+        for (int i = 0; i < calculatedWeights.size(); i++) {
+            double normalizedWeight = calculatedWeights.get(i) / totalWeight;
+            calculatedWeights.set(i, normalizedWeight);
+        }
+    }
 }
+
