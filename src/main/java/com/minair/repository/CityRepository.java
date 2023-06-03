@@ -10,4 +10,6 @@ public interface CityRepository extends JpaRepository<City, Long> {
     Boolean existsByAirportCode(String airportCode);
 
     Optional<City> findByName(String name);
+
+    Optional<City> findByAirportCode(String airportCode);
 }
