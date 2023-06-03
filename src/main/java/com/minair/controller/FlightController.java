@@ -28,31 +28,30 @@ public class FlightController {
     private final CitySimilarityService citySimilarityService;
 
     @GetMapping("/flights")
-    public BaseResponse<List<FlightResponseDto>> showFlights(@RequestParam(value = "flyFrom") String flyFrom,
-                                                             @RequestParam(value = "flyTo") String flyTo,
-                                                             @RequestParam(value = "startDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
-                                                             @RequestParam(value = "endDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate,
-                                                             @RequestParam(value = "day") int day,
-                                                             @RequestParam(value = "people") int people) {
-
-        FlightInfo flightInfo = flightClient.getFlightInfo(flyFrom, flyTo, startDate, endDate, day, people);
-        List<FlightResponseDto> responseDtos = flightService.getDetailsFlight(flightInfo, flyTo, day, 10);
-        return new BaseResponse<>(responseDtos);
-    }
-
-    @GetMapping("/similar-flights")
-    public BaseResponse<List<City>> showSimilarFlights(@RequestParam(value = "flyFrom") String flyFrom,
+    public BaseResponse<FlightResponseDto> showFlights(@RequestParam(value = "flyFrom") String flyFrom,
+                                                       @RequestParam(value = "flyTo") String flyTo,
                                                        @RequestParam(value = "startDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
                                                        @RequestParam(value = "endDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate,
                                                        @RequestParam(value = "day") int day,
                                                        @RequestParam(value = "people") int people) {
 
+        FlightInfo flightInfo = flightClient.getFlightInfo(flyFrom, flyTo, startDate, endDate, day, people);
+        FlightResponseDto responseDtos = flightService.getDetailsFlight(flightInfo, day, 10);
+        return new BaseResponse<>(responseDtos);
+    }
+
+    @GetMapping("/similar-flights")
+    public BaseResponse<List<FlightResponseDto>> showSimilarFlights(@RequestParam(value = "flyFrom") String flyFrom,
+                                                                    @RequestParam(value = "startDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
+                                                                    @RequestParam(value = "endDate") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate,
+                                                                    @RequestParam(value = "day") int day,
+                                                                    @RequestParam(value = "people") int people) {
+
         List<City> similarCities = citySimilarityService.getSimilarCities(flyFrom);
         List<FlightInfo> flightInfos = similarCities.stream()
                 .map(city -> flightClient.getFlightInfo(flyFrom, city.getName(), startDate, endDate, day, people))
                 .collect(Collectors.toList());
-
-
-        return new BaseResponse<>(similarCities);
+        List<FlightResponseDto> responseDtos = flightService.getDetailsFlights(flightInfos, day, 5);
+        return new BaseResponse<>(responseDtos);
     }
 }
