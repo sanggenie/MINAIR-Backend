@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface CitySimilarityRepository extends JpaRepository<CitySimilarity, Long> {
 
-    @Query("SELECT cs FROM CitySimilarity cs JOIN cs.city c WHERE c.id = :cityId")
-    List<CitySimilarity> findAllByCityId(@Param("cityId") Long cityId);
+    @Query("SELECT cs FROM CitySimilarity cs JOIN cs.city c WHERE c.name = :cityName")
+    List<CitySimilarity> findAllByCityName(@Param("cityName") String cityName);
 
     @Query("select cs from CitySimilarity cs " +
             "join cs.city c " +
