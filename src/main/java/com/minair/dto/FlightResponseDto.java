@@ -1,18 +1,26 @@
 package com.minair.dto;
 
+import com.minair.domain.City;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
 public class FlightResponseDto {
 
+    private Long cityId;
     private String countryName;
     private String cityName;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private Float price;
-    private WeatherResponseDto weather;
+    List<FlightDetailsReponseDto> flights;
+
+    public static FlightResponseDto of(City city, List<FlightDetailsReponseDto> flights) {
+        return FlightResponseDto.builder()
+                .cityId(city.getId())
+                .countryName(city.getCountry())
+                .cityName(city.getName())
+                .flights(flights)
+                .build();
+    }
 }

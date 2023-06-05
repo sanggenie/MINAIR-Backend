@@ -48,10 +48,10 @@ public class CitySimilarityService {
         });
     }
 
-    public List<City> getSimilarCities(Long cityId) {
-        List<CitySimilarity> cities = citySimilarityRepository.findAllByCityId(cityId);
+    public List<City> getSimilarCities(String cityName) {
+        List<CitySimilarity> citySimilarities = citySimilarityRepository.findAllByCityName(cityName);
 
-        Set<CitySimilarity> result = calculateWeightedRandom(cities);
+        Set<CitySimilarity> result = calculateWeightedRandom(citySimilarities);
 
         List<City> similarCities = result.stream()
                 .map(CitySimilarity::getTargetCity)
@@ -77,14 +77,14 @@ public class CitySimilarityService {
         return CitySimilarityResponseDto.of(citySimilarity);
     }
 
-    private Set<CitySimilarity> calculateWeightedRandom(List<CitySimilarity> cities) {
+    private Set<CitySimilarity> calculateWeightedRandom(List<CitySimilarity> citySimilarities) {
         List<Double> calculatedWeights = new ArrayList<>();
         Set<CitySimilarity> result = new HashSet<>();
         Random random = new Random();
 
         int count = 2;
 
-        for (CitySimilarity cs : cities) {
+        for (CitySimilarity cs : citySimilarities) {
             double weight = cs.getWeight();
             calculatedWeights.add(weight);
         }
@@ -98,16 +98,16 @@ public class CitySimilarityService {
             for (int j = 0; j < calculatedWeights.size(); j++) {
                 cumulativeWeight += calculatedWeights.get(j);
                 if (randomValue < cumulativeWeight) {
-                    result.add(cities.get(j));
-                    cities.remove(j);
+                    result.add(citySimilarities.get(j));
+                    citySimilarities.remove(j);
                     calculatedWeights.remove(j);
                     break;
                 }
             }
         }
-
         return result;
     }
+
     private void normalizeWeights(List<Double> calculatedWeights){
         double totalWeight = 0;
         for(Double cw: calculatedWeights)
