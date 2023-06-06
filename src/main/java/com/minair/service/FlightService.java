@@ -4,6 +4,7 @@ import com.minair.common.exception.GlobalException;
 import com.minair.domain.City;
 import com.minair.dto.FlightDetailsReponseDto;
 import com.minair.dto.FlightInfo;
+import com.minair.dto.FlightInfoDetail;
 import com.minair.dto.FlightResponseDto;
 import com.minair.dto.WeatherResponseDto;
 import com.minair.repository.CityRepository;
@@ -18,7 +19,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -43,46 +43,49 @@ public class FlightService {
 
     public FlightResponseDto getDetailsFlight(FlightInfo flightInfo, int day, int size) {
 
-        String airportCode = (String) flightInfo.getData().stream()
-                .map(data -> data.get("flyTo"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("error"))
-                .get();
+        String airportCode = flightInfo.getFlightInfoDetails().stream()
+                .map(FlightInfoDetail::getFlyTo)
+                .findFirst().orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
 
         City city = cityRepository.findByAirportCode(airportCode)
                 .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
 
         List<FlightDetailsReponseDto> flightDtos = new ArrayList<>();
-        ArrayList<Map.Entry<LocalDate, Float>> flights = calculateCheapestFlights(flightInfo, size);
+        ConcurrentHashMap<String, String> links = new ConcurrentHashMap<>();
+
+        ArrayList<Map.Entry<LocalDate, Float>> flights = calculateCheapestFlights(flightInfo, size, links);
 
         for (Map.Entry<LocalDate, Float> flight : flights) {
             LocalDate startDate = flight.getKey();
             LocalDate endDate = flight.getKey().plusDays(day - 1);
+            Float price = flight.getValue();
             WeatherResponseDto weatherResponseDto = weatherService.showWeatherDetails(city.getId(), startDate, endDate);
-
+            String link = links.get(startDate + ":" + String.valueOf(price));
+            link = link.replace("lang=en", "lang=ko");
             flightDtos.add(
                     FlightDetailsReponseDto.builder()
                             .startDate(startDate)
                             .endDate(endDate)
-                            .price(flight.getValue())
+                            .price(price)
+                            .link(link)
                             .weather(weatherResponseDto)
                             .build());
         }
         return FlightResponseDto.of(city, flightDtos);
     }
 
-    public ArrayList<Map.Entry<LocalDate, Float>> calculateCheapestFlights(FlightInfo flightInfo, int size) {
+    private ArrayList<Map.Entry<LocalDate, Float>> calculateCheapestFlights(FlightInfo flightInfo, int size, ConcurrentHashMap<String, String> links) {
         ConcurrentHashMap<LocalDate, Float> flights = new ConcurrentHashMap<>();
 
-        List<ConcurrentHashMap<String, Optional<Object>>> datas = flightInfo.getData();
+        List<FlightInfoDetail> flightInfoDetails = flightInfo.getFlightInfoDetails();
+        for (FlightInfoDetail flightInfoDetail : flightInfoDetails) {
+            String localArrival = flightInfoDetail.getLocalArrival().substring(0, 10);
+            LocalDate date = LocalDate.parse(localArrival);
+            float price = flightInfoDetail.getPrice();
 
-        for (ConcurrentHashMap<String, Optional<Object>> data : datas) {
-            String localArrival = (String) data.get("local_arrival").orElse(null);
-            String subString = localArrival.substring(0, 10);
-            LocalDate date = LocalDate.parse(subString);
-            float price = Float.parseFloat(String.valueOf(data.get("price").orElse(0.0)));
+            links.put(date+":"+String.valueOf(price), flightInfoDetail.getDeepLink());
             flights.putIfAbsent(date, price);
-            if (flights.size() == size)  break;
+            if(flights.size() == size) break;
         }
 
         ArrayList<Map.Entry<LocalDate, Float>> entries = new ArrayList<>(flights.entrySet());

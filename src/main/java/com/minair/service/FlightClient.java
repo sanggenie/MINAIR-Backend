@@ -32,7 +32,7 @@ public class FlightClient {
     private String apikey;
 
     public FlightInfo getFlightInfo(String flyFrom, String flyTo,
-                                LocalDate startDate, LocalDate endDate, int day,int people) {
+                                    LocalDate startDate, LocalDate endDate, int day, int people) {
         City from = cityRepository.findByName(flyFrom)
                 .orElseThrow(() -> new GlobalException(CustomExceptionStatus.NOT_EXIST_CITY));
 

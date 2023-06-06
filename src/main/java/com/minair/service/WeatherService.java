@@ -1,11 +1,9 @@
 package com.minair.service;
 
-import com.minair.common.exception.GlobalException;
 import com.minair.domain.City;
 import com.minair.domain.Weather;
 import com.minair.dto.WeatherInfo;
 import com.minair.dto.WeatherResponseDto;
-import com.minair.repository.CityRepository;
 import com.minair.repository.WeatherQueryRepository;
 import com.minair.repository.WeatherRepository;
 import com.minair.util.converter.WeatherCodeConverter;
@@ -25,15 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.minair.common.exception.CustomExceptionStatus.NOT_EXIST_CITY;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class WeatherService {
 
-    private final CityRepository cityRepository;
     private final WeatherRepository weatherRepository;
     private final WeatherQueryRepository weatherQueryRepository;
 
@@ -44,10 +39,7 @@ public class WeatherService {
     }
 
     public WeatherResponseDto showWeatherDetails(Long cityId, LocalDate startDate, LocalDate endDate) {
-        City city = cityRepository.findById(cityId)
-                .orElseThrow(() -> new GlobalException(NOT_EXIST_CITY));
-
-        List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(city.getId(), startDate, endDate);
+        List<Weather> weathers = weatherQueryRepository.findAllWeatherBetween(cityId, startDate, endDate);
         long dayDiff = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         double averageTemperature = calculateAverageTemperature(weathers);
         String lastestWeather = calculateLastestWeather(weathers, dayDiff);

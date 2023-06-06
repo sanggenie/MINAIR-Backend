@@ -1,13 +1,15 @@
 package com.minair.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
+@Setter
 public class FlightInfo {
 
-    List<ConcurrentHashMap<String, Optional<Object>>> data;
+    @JsonProperty("data")
+    List<FlightInfoDetail> flightInfoDetails;
 }
