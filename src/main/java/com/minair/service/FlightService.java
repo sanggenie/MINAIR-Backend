@@ -61,6 +61,7 @@ public class FlightService {
             Float price = flight.getValue();
             WeatherResponseDto weatherResponseDto = weatherService.showWeatherDetails(city.getId(), startDate, endDate);
             String link = links.get(startDate + ":" + String.valueOf(price));
+            link = link.replace("lang=en", "lang=ko");
             flightDtos.add(
                     FlightDetailsReponseDto.builder()
                             .startDate(startDate)
