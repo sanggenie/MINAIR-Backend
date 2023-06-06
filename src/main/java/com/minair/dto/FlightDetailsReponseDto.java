@@ -12,5 +12,6 @@ public class FlightDetailsReponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private Float price;
+    private String link;
     private WeatherResponseDto weather;
 }

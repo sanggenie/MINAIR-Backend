@@ -13,4 +13,7 @@ public class FlightInfoDetail {
 
     @JsonProperty("price")
     float price;
+
+    @JsonProperty("deep_link")
+    String deepLink;
 }
